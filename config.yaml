@@ -1,0 +1,24 @@
+global:
+  target_path: torrent/
+  interval: 3600
+  active:
+  - SAO_Al
+  headers:
+    User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+      like Gecko) Chrome/67.0.3396.99 Safari/537.36
+    Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+tasks:
+  SAO_Al:
+    site: kisssub
+    rss: http://www.kisssub.org/rss.xml
+    rss_type: 2
+    timestamp: 0
+    params:
+      keyword: 澄空 刀剑神域 Alicization 简体
+  Kaguya:
+    site: kisssub
+    rss: http://www.kisssub.org/rss.xml
+    rss_type: 2
+    timestamp: 0
+    params:
+      keyword: 澄空 辉夜大小姐想让我告白
