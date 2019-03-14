@@ -11,7 +11,7 @@ from threading import Thread
 import socket
 
 from module.operate import Operation
-from module.log import log
+from module.log import Log
 
 
 def server():
@@ -19,7 +19,7 @@ def server():
     s.bind(('localhost', 9999))
     s.listen(5)
     print("Fake-rss server start. Wait for command. ")
-    logger = log("Server")
+    logger = Log("Server").logger
     operation = Operation(logger)
     while True:
         # 接受一个新连接:

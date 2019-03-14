@@ -12,8 +12,7 @@ import time
 
 from module.config import config_load
 from module.main_task import start_task
-
-from module.log import log
+from module.log import Log
 
 
 class Operation(object):
@@ -42,12 +41,13 @@ class Operation(object):
 
     @staticmethod
     def mission():
-        logger = log("Tasks")
-        settings, tasks = config_load(logger)
+        logger = Log("Tasks").logger
+        connect, schedule, tasks = config_load(logger)
+        t_client = connect.trans_client()
         time.sleep(5)
         while True:
             for i, task in enumerate(tasks):
                 logger.info("Start the task {}".format(i+1))
-                start_task(settings, task, logger)
+                start_task(t_client, task, logger)
             logger.info("Task completed, start timing")
-            time.sleep(settings.interval)
+            time.sleep(schedule.interval)

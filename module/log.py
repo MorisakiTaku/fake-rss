@@ -11,28 +11,27 @@ import logging
 import time
 
 
-def filename():
-    # 创建一个handler，用于写入日志文件
-    time_now = time.strftime('%Y%m%d_%H%M', time.localtime(time.time()))
-    file_name = time_now + '.log'
-    return file_name
+class Log(object):
 
+    def __init__(self, type_):
+        self.logger = logging.getLogger()
+        self.logger.setLevel(logging.INFO)  # log等级总开关
+        self.formatter = logging.Formatter("%(asctime)s - %(levelname)s: %(message)s")
+        self.logfile = self.gen_filename(type_)
+        self.create_logger()
 
-def create_logger(logfile):
-    # 创建一个logger
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)  # log等级总开关
-    formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-    # 创建file handler
-    fh = logging.FileHandler(logfile, mode='w', encoding='utf-8')
-    fh.setLevel(logging.INFO)  # 输出到file的log等级的开关
-    fh.setFormatter(formatter)
-    # 将logger添加到handler里面
-    logger.addHandler(fh)
-    return logger
+    @staticmethod
+    def gen_filename(type_):
+        # 创建一个handler，用于写入日志文件
+        time_now = time.strftime('%Y%m%d', time.localtime(time.time()))
+        filename = time_now + '.log'
+        logfile = "logs/[" + str(type_) + "]" + filename
+        return logfile
 
-
-def log(type_):
-    logfile = "logs/[" + str(type_) + "]" + str(filename())
-    logger = create_logger(logfile)
-    return logger
+    def create_logger(self):
+        # 创建file handler
+        fh = logging.FileHandler(self.logfile, mode='w', encoding='utf-8')
+        fh.setLevel(logging.INFO)  # 输出到file的log等级的开关
+        fh.setFormatter(self.formatter)
+        # 将logger添加到handler里面
+        self.logger.addHandler(fh)

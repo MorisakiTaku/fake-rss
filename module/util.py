@@ -7,7 +7,6 @@
 #
 # Created:     2019/3/5
 # ------------------------------------------------------------------------------
-from ruamel import yaml
 
 
 def transfer(line):
@@ -19,11 +18,3 @@ def transfer(line):
     line = line.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')\
         .replace('&apos;', '\'').replace('&quot;', '\"')
     return line
-
-
-def set_timestamp(title, end_time):
-    with open('config.yaml', 'r', encoding='utf-8') as file:
-        content = yaml.safe_load(file.read())
-    with open('config.yaml', 'w', encoding='utf-8') as file:
-        content['tasks'][title]['timestamp'] = end_time
-        yaml.dump(content, file, Dumper=yaml.RoundTripDumper, allow_unicode=True)
