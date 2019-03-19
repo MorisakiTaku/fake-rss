@@ -10,8 +10,8 @@
 from ruamel import yaml
 from transmissionrpc.constants import DEFAULT_PORT
 
-from module.api import Client
-from module.item import Task
+from module.trans_api import Client
+from module.item import Task, Downloader
 
 
 class Connect(object):
@@ -24,7 +24,10 @@ class Connect(object):
         return Client(address=self.transmission.get('host', 'localhost'),
                       port=self.transmission.get('port', DEFAULT_PORT),
                       user=self.transmission.get('username', None),
-                      password=self.transmission.get('password', None), )
+                      password=self.transmission.get('password', None))
+
+    def download_service(self):
+        return Downloader(self.headers)
 
 
 class Schedule(object):
@@ -45,14 +48,8 @@ def config_load(logger):
         if key in schedule.active:
             task = Task(schedule, key, task_dict)
             tasks.append(task)
-            logger.info("Task: {}".format(task.title))
-    logger.info("Load {} active task(s) from config.yaml".format(len(tasks)))
+    logger.info("Load {} active task.py(s) from config.yaml".format(len(tasks)))
+    title_list = [_.title for _ in tasks]
+    logger.info("Task: {}".format(", ".join(title_list)))
+    logger.info("------------------------------")
     return connect, schedule, tasks
-
-
-if __name__ == '__main__':
-    pass
-    # _settings, _tasks = config_load()
-    # for _ in _tasks:
-    #     _.cache()
-    #     print(_.hash)

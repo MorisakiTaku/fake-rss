@@ -9,14 +9,16 @@
 # ------------------------------------------------------------------------------
 import time
 import hashlib
-import urllib.parse
-from dateutil.parser import parse
+import requests
+import feedparser
+import dateutil.parser
 from ruamel import yaml
+from urllib import parse
 
 from module.util import transfer
 
 
-class Item(object):
+class Entry(object):
     """条目"""
     def __init__(self, entry):
         self.title = transfer(entry.title)
@@ -24,7 +26,7 @@ class Item(object):
         self.links = entry.links
         self.published_timestamp = time.mktime(entry.published_parsed)
 
-    def torrent(self):
+    def get_download_url(self):
         for s_link in self.links:
             if s_link['type'] == 'application/x-bittorrent':
                 return s_link['href']
@@ -39,30 +41,32 @@ class Task(object):
         self.path = task_dict.get('path', schedule.default_path)
         self.interval = task_dict.get('interval', 0)
         self.params = task_dict.get('params', {})
-        self.filter = task_dict.get('filter', {})
+        self.filter_ = task_dict.get('filter', {})
         self.timestamp = 0
         self.hash = hashlib.md5(str(task_dict).encode('utf-8')).hexdigest()
 
+    def parse_rss(self):
+        """使用feedparser模块解析rss，将条目以Item类保存"""
+        content = feedparser.parse(self.rss_url())
+        entries = [Entry(entry) for entry in content.entries]
+        return entries
+
     def rss_url(self):
         if self.params:
-            return self.rss + "?" + urllib.parse.urlencode(self.params)
+            return self.rss + "?" + parse.urlencode(self.params)
         else:
             return self.rss
 
     def filtrate(self, entry):
         # 时间戳条件
-        default_timestamp = time.mktime(parse(self.filter.get('after_time', '1970.1.2')).timetuple())
+        default_timestamp = time.mktime(dateutil.parser.parse(self.filter_.get('after_time', '1970.1.2')).timetuple())
         after_time = max(default_timestamp, self._get_time())
         # 关键词条件
-        filter_word = self.filter.get('keyword', "")
+        filter_word = self.filter_.get('keyword', "")
         # 过滤
         if (entry.published_timestamp > after_time) & (filter_word in entry.title):
             return True
         else:
-            print(entry.published_timestamp)
-            print(after_time)
-            print(filter_word)
-            print(entry.title)
             return False
 
     def set_time(self, end_time):
@@ -82,3 +86,17 @@ class Task(object):
             return content.get(self.hash, self.timestamp)
         else:
             return self.timestamp
+
+
+class Downloader(object):
+    """torrent文件下载器"""
+    def __init__(self, headers):
+        self.headers = headers
+
+    def start_download(self, target_url):
+        content = self._direct_download(target_url)
+        return content
+
+    def _direct_download(self, target_url):
+        res = requests.get(target_url, headers=self.headers)
+        return res.content

@@ -30,7 +30,7 @@ def server():
 
 
 def tcp_link(sock, addr, operation):
-    operation.logger.info('------------------------------')
+    operation.logger.info('------------------------------------------------------------')
     operation.logger.info('Accept new connection from %s:%s...' % addr)
     data = sock.recv(1024)
     if data.decode('utf-8') == 'start':
@@ -49,7 +49,7 @@ def tcp_link(sock, addr, operation):
         operation.logger.error('Invalid command')
     sock.close()
     operation.logger.info('Connection from %s:%s closed.' % addr)
-    operation.logger.info('------------------------------')
+    operation.logger.info('------------------------------------------------------------')
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ from multiprocessing import Process
 import time
 
 from module.config import config_load
-from module.main_task import start_task
+from module.task import start_task
 from module.log import Log
 
 
@@ -42,12 +42,15 @@ class Operation(object):
     @staticmethod
     def mission():
         logger = Log("Tasks").logger
+        logger.info("------------------------------------------------------------")
         connect, schedule, tasks = config_load(logger)
         t_client = connect.trans_client()
+        d_service = connect.download_service()
         time.sleep(5)
         while True:
             for i, task in enumerate(tasks):
-                logger.info("Start the task {}".format(i+1))
-                start_task(t_client, task, logger)
+                logger.info("Start the task.py {}: {}".format(i+1, task.title))
+                start_task(t_client, d_service, task, logger)
             logger.info("Task completed, start timing")
+            logger.info("------------------------------")
             time.sleep(schedule.interval)
