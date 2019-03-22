@@ -23,14 +23,14 @@ class Log(object):
     @staticmethod
     def gen_filename(type_):
         # 创建一个handler，用于写入日志文件
-        time_now = time.strftime('%Y%m%d', time.localtime(time.time()))
+        time_now = time.strftime('%Y-%m-%d', time.localtime(time.time()))
         filename = time_now + '.log'
         logfile = "logs/[" + str(type_) + "]" + filename
         return logfile
 
     def create_logger(self):
         # 创建file handler
-        fh = logging.FileHandler(self.logfile, mode='w', encoding='utf-8')
+        fh = logging.FileHandler(self.logfile, mode='a', encoding='utf-8')
         fh.setLevel(logging.INFO)  # 输出到file的log等级的开关
         fh.setFormatter(self.formatter)
         # 将logger添加到handler里面

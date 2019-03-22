@@ -1,39 +1,26 @@
 connect:
   headers:
-    User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
-      like Gecko) Chrome/67.0.3396.99 Safari/537.36
-    Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+    User-Agent: ......
+    Accept: ......
   transmission:
     host: localhost
     port: 9091
+    user: xxxx
+    password: xxxx
 
 schedule:
-  path: E:\Atomic\Downloads\Transmission
+  path: ./Downloads/Transmission
   interval: 3600
   active:
-  - Jojo
-  - Kaguya
-  - Index
+  - Sample
 
 tasks:
-  Kaguya:
-    # 动漫花园 辉夜大小姐 澄空
-    rss: https://share.dmhy.org/topics/rss/rss.xml
-    path: E:\Atomic\Downloads\Transmission\Kaguya
+  Sample:
+    path: ......
+    rss: ......
     params:
-      keyword: 辉夜大小姐
-      team_id: 58
-
-  Jojo:
-    # 爱恋动漫 Jojo-黄金之风 诸神
-    rss: http://www.kisssub.org/rss-%E8%AF%B8%E7%A5%9E+JOJO+%E9%BB%84%E9%87%91%E4%B9%8B%E9%A3%8E+%E7%AE%80%E6%97%A5.xml
-    path: E:\Atomic\Downloads\Transmission\Jojo
-
-  Index:
-    # 动漫花园 魔法禁书目录3 动漫国&澄空
-    rss: https://share.dmhy.org/topics/rss/rss.xml
-    params:
-      keyword: 魔法禁书目录Ⅲ 简体
-      team_id: 303
+      keyword: ......
+      team_id: ......
     filter:
-      after_time: 2019.01.01
+      after_time: 2019.1.1
+      keyword: ......

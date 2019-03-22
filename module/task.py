@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # Project:     fake-rss
-# Name:        main
+# Name:        task
 # Purpose:
 #
 # Author:      Atomic

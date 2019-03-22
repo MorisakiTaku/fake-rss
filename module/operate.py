@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # Project:     fake-rss
-# Name:        opera
+# Name:        operate
 # Purpose:
 #
 # Author:      Atomic

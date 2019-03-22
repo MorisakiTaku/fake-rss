@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # Project:     fake-rss
-# Name:        api
+# Name:        trans_api
 # Purpose:
 #
 # Author:      Atomic

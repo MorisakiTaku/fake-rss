@@ -61,13 +61,16 @@ class Task(object):
         # 时间戳条件
         default_timestamp = time.mktime(dateutil.parser.parse(self.filter_.get('after_time', '1970.1.2')).timetuple())
         after_time = max(default_timestamp, self._get_time())
-        # 关键词条件
-        filter_word = self.filter_.get('keyword', "")
-        # 过滤
-        if (entry.published_timestamp > after_time) & (filter_word in entry.title):
-            return True
-        else:
+        if entry.published_timestamp < after_time:
             return False
+
+        # 关键词条件
+        keyword_list = self.filter_.get('keyword', "").split(" ")
+        for _ in keyword_list:
+            if _ not in entry.title:
+                return False
+
+        return True
 
     def set_time(self, end_time):
         self.timestamp = end_time
