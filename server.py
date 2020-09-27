@@ -26,8 +26,7 @@ class Server(object):
 
     def monitor(self):
         while True:
-            # 接受一个新连接:
-            sock, addr = self.s.accept()
+            sock, addr = self.s.accept()  # 接受一个新连接. 这一步是阻塞的
             self.tcp_link(sock, addr, self.operation)
 
     @staticmethod
@@ -37,7 +36,7 @@ class Server(object):
         data = sock.recv(1024).decode('utf-8')
         operation.logger.info('Received ' + data + ' command')
         if data == 'start':
-            operation.start()
+            operation.subject()
             sock.send("Task start".encode())
         elif data == 'reload':
             operation.reload()

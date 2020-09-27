@@ -8,25 +8,24 @@
 # Created:     2019/3/12
 # ------------------------------------------------------------------------------
 from transmissionrpc.utils import make_rpc_name, argument_value_convert
-import urllib.parse
+from urllib.parse import urlparse
 import transmissionrpc
 import base64
 import time
-
-from module.item import Downloader
 
 
 class Client(transmissionrpc.Client):
 
     def add_torrent(self, torrent, downloader=None, timeout=None, **kwargs):
+        """基类方法使用urlopen下载种子文件, 没有提供绕过反爬的功能"""
         if torrent is None:
             raise ValueError('add_torrent requires data or a URI.')
         torrent_data = None
-        parsed_uri = urllib.parse.urlparse(torrent)
+        parsed_uri = urlparse(torrent)
         if parsed_uri.scheme in ['ftp', 'ftps', 'http', 'https']:
             # there has been some problem with T's built in torrent fetcher,
             # use a python one instead
-            torrent_data = downloader.start_download(torrent)
+            torrent_data = downloader.download(torrent)
             torrent_data = base64.b64encode(torrent_data).decode('utf-8')
             time.sleep(3)
         if parsed_uri.scheme in ['file']:

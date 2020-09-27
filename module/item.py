@@ -9,97 +9,77 @@
 # ------------------------------------------------------------------------------
 import time
 import hashlib
-import requests
 import feedparser
-import dateutil.parser
+from dateutil.parser import parse as time_parse
 from ruamel import yaml
 from urllib import parse
-
+from typing import List
 from module.util import transfer
 
 
 class Entry(object):
     """条目"""
+
     def __init__(self, entry):
         self.title = transfer(entry.title)
         self.link = entry.link
         self.links = entry.links
         self.published_timestamp = time.mktime(entry.published_parsed)
 
-    def get_download_url(self):
+    def get_download_url(self) -> str:
         for s_link in self.links:
             if s_link['type'] == 'application/x-bittorrent':
                 return s_link['href']
-        return None
+        return ""
 
 
-class Task(object):
-    """任务"""
-    def __init__(self, schedule, key, task_dict):
+class TaskInfo(object):
+    """任务信息"""
+
+    def __init__(self, key: str, task_dict: dict, default_path: str):
         self.title = key
         self.rss = task_dict.get('rss', None)
-        self.path = task_dict.get('path', schedule.default_path)
-        self.interval = task_dict.get('interval', 0)
+        self.path = task_dict.get('path', default_path)
         self.params = task_dict.get('params', {})
-        self.filter_ = task_dict.get('filter', {})
+        self.filter = task_dict.get('filter', {})
         self.timestamp = 0
         self.hash = hashlib.md5(str(task_dict).encode('utf-8')).hexdigest()
 
-    def parse_rss(self):
-        """使用feedparser模块解析rss，将条目以Item类保存"""
-        content = feedparser.parse(self.rss_url())
+    def parse_rss(self) -> List[Entry]:
+        """使用feedparser模块解析rss，将条目以Entry类保存"""
+        rss_url = self.rss + "?" + parse.urlencode(self.params) if self.params else self.rss
+        content = feedparser.parse(rss_url)
         entries = [Entry(entry) for entry in content.entries]
         return entries
 
-    def rss_url(self):
-        if self.params:
-            return self.rss + "?" + parse.urlencode(self.params)
-        else:
-            return self.rss
-
-    def filtrate(self, entry):
+    def filtrate(self, entry: Entry) -> bool:
         # 时间戳条件
-        default_timestamp = time.mktime(dateutil.parser.parse(self.filter_.get('after_time', '1970.1.2')).timetuple())
-        after_time = max(default_timestamp, self._get_time())
+        default_timestamp = time.mktime(time_parse(self.filter.get('after_time', '1970.1.2')).timetuple())
+        after_time = max(default_timestamp, self.__get_update_time())
         if entry.published_timestamp < after_time:
             return False
 
         # 关键词条件
-        keyword_list = self.filter_.get('keyword', "").split(" ")
-        for _ in keyword_list:
-            if _ not in entry.title:
+        include_keyword = self.filter.get('include', "").split(" ")
+        exclude_keyword = self.filter.get('include', "").split(" ")
+        for word in include_keyword:
+            if word not in entry.title:
+                return False
+        for word in exclude_keyword:
+            if word in entry.title:
                 return False
 
         return True
 
-    def set_time(self, end_time):
+    def save_update_time(self, end_time: int) -> None:
+        """使用cache.yaml保存运行过程中变化过的参数, 比如起始时间. key为根据不变参数计算得到的hash值"""
         self.timestamp = end_time
-        with open('logs/cache.yaml', 'r', encoding='utf-8') as file:
+        with open('logs/cache.yaml', 'w+', encoding='utf-8') as file:
             content = yaml.safe_load(file.read())
-            if not content:
-                content = {}
-        with open('logs/cache.yaml', 'w', encoding='utf-8') as file:
             content[self.hash] = end_time
             yaml.dump(content, file, Dumper=yaml.RoundTripDumper, allow_unicode=True)
 
-    def _get_time(self):
+    def __get_update_time(self) -> int:
         with open('logs/cache.yaml', 'r', encoding='utf-8') as file:
             content = yaml.safe_load(file.read())
-        if content:
-            return content.get(self.hash, self.timestamp)
-        else:
-            return self.timestamp
-
-
-class Downloader(object):
-    """torrent文件下载器"""
-    def __init__(self, headers):
-        self.headers = headers
-
-    def start_download(self, target_url):
-        content = self._direct_download(target_url)
-        return content
-
-    def _direct_download(self, target_url):
-        res = requests.get(target_url, headers=self.headers)
-        return res.content
+        return content.get(self.hash, self.timestamp) if content else self.timestamp
